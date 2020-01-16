@@ -16,9 +16,35 @@ def btn1Pressed():
     titles = os.listdir()
     num = 1+ (len(titles))
     txtf = 'New_Text_' + str(num)
+    while os.path.isfile(txtf) == 1:
+        num = num+1
+        txtf = 'New_Text_' + str(num)
+
     thsFile = open(txtf, 'a+')
     thsFile.close
+        
     refresh()
+
+
+#def btn1Pressed():
+#    titles = os.listdir()
+#    num = 1+ (len(titles))
+#    txtf = 'New_Text_' + str(num)
+#    if ((os.path.isfile(txtf)) == 1):  
+#        thsFile = open(txtf, 'a+')
+#        thsFile.close
+#    else:
+#        while os.path.isfile(txtf) == 0:
+#            num = num+1
+#        num = 1+ (len(titles))
+#        txtf = 'New_Text_' + str(num)
+#        thsFile = open(txtf, 'a+')
+#        thsFile.close
+#    refresh()
+
+
+
+
 
 
 def btn2Pressed():
@@ -28,20 +54,20 @@ def btn2Pressed():
     refresh()
     
 def boxSelected(*args):
-    global L
-    global f
     global name
+    global f
     index = box.curselection()
     name = (box.get(index))
     title.configure(text=name)
     f = open(name, 'r+')
     text = f.read()
-    txt.delete(1.0, END)
+    txt.delete(0.0, END)
     txt.insert(0.0, text)
     f.close()
 
 
 def btnRenPressed():
+    global name
     index = box.curselection()
     ReW = Tk()  
     ReW.title("Enter new name")
@@ -51,29 +77,38 @@ def btnRenPressed():
     frameRename.pack(side='top')
     frameButtons12.pack(side='bottom')
     entryRe=Entry(frameRename)
+
+
+    entryRe.insert(0,name)
+
+    
     entryRe.pack()
-    compBut=Button(frameButtons12, text="Rename", command=lambda: BSave(entryRe))
+    compBut=Button(frameButtons12, text="Rename", command=lambda: BSave(entryRe, name))
     compBut.pack(side="left")
     noButton=Button(frameButtons12, text="Exit", command=ReW.destroy)
     noButton.pack(side='right')
     ReW.mainloop()
 
-def BSave(entryRe):
-    global name
+def BSave(entryRe, name):
+    
     nName = entryRe.get()
-    os.rename(name,nName)      
+    if os.path.isfile(nName) == 0:       
+        os.rename(name,nName)
     refresh()
 
 def btnSVPressed():
     global name
     
     f = open (name, 'r+')
-    text = txt.get(1.0, END)
+    text = txt.get(0.0, END)
     f.write(text)
-    f.close()
 
 
-f=open('config', 'r+')
+def myf():
+    if mb.askokcancel("Quit", "Do you want to quit? You can lost all unsaved data"):
+        window.destroy()
+
+
 name = None
 
 os.chdir('texts')
@@ -82,9 +117,12 @@ window = Tk()
 window.title("msin")
 window.minsize(640,480)
 window.geometry('1000x800')
+window.protocol('WM_DELETE_WINDOW', myf)
+
 # Главный фрейм
 mainFrame=Frame(window,bd=5)
 mainFrame.pack(fill="both", expand="true")
+
 # Левый и правый фреймы
 leftFrame=Frame(mainFrame,bd=2)
 leftFrame.pack(side='left',fill=Y)
@@ -117,8 +155,6 @@ btnSave.pack(side='right')
 title = Label(titleFrame, width=50, bd=2)
 title.pack(fill="both", expand="true")
 
-
-
 # Листбокс
 box = Listbox(boxFrame, bd=2, selectmode=BROWSE)
 for i in titles:
@@ -141,7 +177,7 @@ txt = scrolledtext.ScrolledText(txtFrame, bd=2)
 txt.pack(fill="both", expand="true")
 txtFrame.pack(side="bottom",fill="both", expand="true")
 
-refresh()
+
 
 
 window.mainloop()
